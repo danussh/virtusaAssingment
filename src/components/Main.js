@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import Products from '../pages/Products';
 import routes from '../constants/routes.json';
 import CheckoutPage from '../pages/CheckoutPage';
+import ReviewPage from '../pages/ReviewPage';
 
 const Main = () => {
   return (
@@ -13,6 +14,7 @@ const Main = () => {
         <Route exact path={routes.HOME} component={Home} />
         <Route exact path={routes.PRODUCTS} component={Products} />
         <Route exact path={routes.CHECKOUT} component={CheckoutPage} />
+        <Route exact path={routes.REVIEW} component={ReviewPage} />
       </Switch>
     </main>
   );

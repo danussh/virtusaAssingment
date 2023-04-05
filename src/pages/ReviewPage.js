@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useHistory } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import CartItemCard from '../components/Cart/CartItemCard';
 import { Form, Row, Col, FormControl, Button, FormLabel } from "react-bootstrap";
 import { v4 as uuidv4 } from 'uuid';
-import { setBilling, setShipping, setPaying } from '../state/actions';
 import routes from '../constants/routes.json';
+// import { ToastContainer, toast } from 'react-toastify';
 
-const CheckoutPage = () => {
+const ReviewPage = () => {
     const cart = useSelector((state) => state.cart);
-    const billingDetails = useSelector((state) => state.address.billingAddress);
-    const shipingDetails = useSelector((state) => state.address.shippingAddress);
-    const payingDetails = useSelector((state) => state.address.payingAddress);
-
-    const dispatch = useDispatch();
     const history = useHistory();
+    const billadd = useSelector((state) => state.address.billingAddress);
+    const shipadd = useSelector((state) => state.address.shippingAddress);
+    const payadd = useSelector((state) => state.address.payingAddress);
+
     const cartItems = cart.map((cartItem) => (
         <CartItemCard
             key={uuidv4()}
@@ -24,6 +23,7 @@ const CheckoutPage = () => {
             price={cartItem.price}
             image={cartItem.image}
             quantity={cartItem.quantity}
+            donNotShow={true}
         ></CartItemCard>
     ));
 
@@ -36,12 +36,24 @@ const CheckoutPage = () => {
             .toFixed(2);
     };
 
+    const handleBack = () => {
+        history.push(routes.CHECKOUT);
+    }
+
     const [billingAddress, setBillingAddress] = useState({
-        firstName: '',
-        lastName: '',
-        address: '',
-        country: '',
-        state: '',
+        firstName: billadd?.firstName || '',
+        lastName: billadd?.lastName || '',
+        address: billadd?.address || '',
+        country: billadd?.country || '',
+        state: billadd?.state || '',
+    });
+
+    const [shippingAddress, setShippingAddress] = useState({
+        firstName: shipadd?.firstName || '',
+        lastName: shipadd?.lastName || '',
+        address: shipadd?.address || '',
+        country: shipadd?.country || '',
+        state: shipadd?.state || '',
     });
     const [billingAddressErrors, setBillingAddressErrors] = useState({
         firstName: "",
@@ -51,13 +63,6 @@ const CheckoutPage = () => {
         state: "",
     });
 
-    const [shippingAddress, setShippingAddress] = useState({
-        firstName: "",
-        lastName: "",
-        address: "",
-        country: "",
-        state: "",
-    });
     const [shippingAddressErrors, setShippingAddressErrors] = useState({
         firstName: "",
         lastName: "",
@@ -69,196 +74,41 @@ const CheckoutPage = () => {
     const [sameAddress, setSameAddress] = useState(false);
 
     const [card, setCard] = useState({
-        cardNumber: "",
-        expirationDate: "",
-        securityCode: "",
+        cardNumber: payadd?.cardNumber || '',
+        expirationDate: payadd?.expirationDate || '',
+        securityCode: payadd?.securityCode || '',
     });
     const [cardErrors, setCardErrors] = useState({});
 
-    const handleCardChange = (e) => {
-        setCard({ ...card, [e.target.id]: e.target.value });
-    };
 
-    useEffect(() => {
-        if (billingDetails || shipingDetails || payingDetails) {
-            setBillingAddress({ ...billingDetails });
-            setShippingAddress({ ...shipingDetails });
-            setCard({ ...payingDetails });
-        }
-    }, [billingDetails, shipingDetails, payingDetails]);
-
-    const handleAddressChange = (addressType, field, value) => {
-        if (addressType === "billing") {
-            setBillingAddress({ ...billingAddress, [field]: value });
-        } else {
-            setShippingAddress({ ...shippingAddress, [field]: value });
-        }
-    };
-
-    const handleSameAddressChange = (e) => {
-        setSameAddress(e.target.checked);
-        if (e.target.checked) {
-            setShippingAddress(billingAddress);
-        } else {
-            setShippingAddress({
-                firstName: "",
-                lastName: "",
-                address: "",
-                country: "",
-                state: "",
-            });
-        }
-    };
-
-    const validateBillingAddress = () => {
-        let isValid = true;
-        const errors = {
-            firstName: "",
-            lastName: "",
-            address: "",
-            country: "",
-            state: "",
-        };
-
-        if (!billingAddress.firstName) {
-            isValid = false;
-            errors.firstName = "First name is required";
-        }
-        if (!billingAddress.lastName) {
-            isValid = false;
-            errors.lastName = "Last name is required";
-        }
-        if (!billingAddress.address) {
-            isValid = false;
-            errors.address = "Address is required";
-        }
-        if (!billingAddress.country) {
-            isValid = false;
-            errors.country = "Country is required";
-        }
-        if (!billingAddress.state) {
-            isValid = false;
-            errors.state = "State is required";
-        }
-
-
-        setBillingAddressErrors(errors);
-        return isValid;
-    };
-
-    const validateShippingAddress = () => {
-        let isValid = true;
-        const errors = {
-            firstName: "",
-            lastName: "",
-            address: "",
-            country: "",
-            state: "",
-        };
-
-        if (!shippingAddress.firstName) {
-            isValid = false;
-            errors.firstName = "First name is required";
-        }
-        if (!shippingAddress.lastName) {
-            isValid = false;
-            errors.lastName = "Last name is required";
-        }
-        if (!shippingAddress.address) {
-            isValid = false;
-            errors.address = "Address is required";
-        }
-        if (!shippingAddress.country) {
-            isValid = false;
-            errors.country = "Country is required";
-        }
-        if (!shippingAddress.state) {
-            isValid = false;
-            errors.state = "State is required";
-        }
-        setShippingAddressErrors(errors);
-        return isValid;
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (
-            validateBillingAddress() &&
-            validateShippingAddress() &&
-            validateCard()
-        ) {
-            dispatch(setBilling(billingAddress));
-            dispatch(setShipping(shippingAddress));
-            dispatch(setPaying(card));
-            history.push(routes.REVIEW);
-        } else {
-            console.error("Form validation failed");
-        }
-    };
-
-    const validateCard = () => {
-        let isValid = true;
-        const errors = {
-            cardNumber: "",
-            expirationDate: "",
-            securityCode: "",
+        const formData = {
+            billingAddress,
+            shippingAddress,
+            card,
+            cart,
         };
-
-        if (!card.cardNumber) {
-            isValid = false;
-            errors.cardNumber = "Credit card number is required";
-        } else if (!/^\d{16}$/.test(card.cardNumber)) {
-            isValid = false;
-            errors.cardNumber = "Credit card number must be 16 digits long";
-        }
-
-        if (!card.expirationDate) {
-            isValid = false;
-            errors.expirationDate = "Expiration date is required";
-        } else if (!/^\d{2}\/\d{2}$/.test(card.expirationDate)) {
-            isValid = false;
-            errors.expirationDate = "Expiration date must be in the format MM/YY";
-        } else {
-            const inputDate = card.expirationDate.split("/");
-            const inputYear = parseInt(inputDate[1], 10) + 2000;
-            const inputMonth = parseInt(inputDate[0], 10);
-            const currentDate = new Date();
-            const currentYear = currentDate.getFullYear();
-            const currentMonth = currentDate.getMonth() + 1;
-
-            if (inputYear < currentYear || (inputYear === currentYear && inputMonth < currentMonth)) {
-                isValid = false;
-                errors.expirationDate = "Invalid expiration date";
-            }
-        }
-
-        if (!card.securityCode) {
-            isValid = false;
-            errors.securityCode = "Security code is required";
-        } else if (!/^\d{3}$/.test(card.securityCode)) {
-            isValid = false;
-            errors.securityCode = "Security code must be 3 digits long";
-        }
-
-        setCardErrors(errors)
-        return isValid;
+        console.log(formData);
+        alert(' Form Submitted SucessFully, Check The logs For FormData');
+        history.push('/shopping-cart')
+        window.location.reload();
     };
-
 
 
     // Return block starts here:
     return (
         <div className="container">
             <div className="py-5 text-center">
-                <h1>Checkout Form</h1>
+                <h1>Review Form</h1>
             </div>
 
             <div className="row">
                 <div className="col-md-4 order-md-2 mb-4">
                     <h4 className="d-flex justify-content-between align-items-center mb-3">
                         <span className="text-muted">
-                            <h2 className="mb-3">Order Summary</h2>
+                            <h3 className="mb-3">Order Summary</h3>
                         </span>
                         <span className="badge badge-secondary badge-pill">3</span>
                     </h4>
@@ -271,9 +121,9 @@ const CheckoutPage = () => {
                     </ul>
                 </div>
                 <div className="col-md-8 order-md-1">
-                    <h2 className="mb-3">Billing Address</h2>
+                    <h2 className="mb-3">Billing address</h2>
                     <hr className="mb-4" />
-                    <Form noValidate onSubmit={handleSubmit} >
+                    <Form noValidate onSubmit={handleSubmit}>
                         <Row>
                             <Col md={6}>
                                 <Form.Group>
@@ -284,9 +134,7 @@ const CheckoutPage = () => {
                                         id="billingFirstName"
                                         type="text"
                                         value={billingAddress.firstName}
-                                        onChange={(e) =>
-                                            handleAddressChange("billing", "firstName", e.target.value)
-                                        }
+                                        disabled
                                     />
                                     <Form.Text className="text-danger">
                                         {billingAddressErrors.firstName}
@@ -301,10 +149,8 @@ const CheckoutPage = () => {
                                         id="billingLastName"
                                         type="text"
                                         size="lg"
+                                        disabled
                                         value={billingAddress.lastName}
-                                        onChange={(e) =>
-                                            handleAddressChange("billing", "lastName", e.target.value)
-                                        }
                                     />
                                     <Form.Text className="text-danger">
                                         {billingAddressErrors.lastName}
@@ -320,11 +166,8 @@ const CheckoutPage = () => {
                                 id="billingAddress"
                                 size="lg"
                                 type="text"
+                                disabled
                                 value={billingAddress.address}
-
-                                onChange={(e) =>
-                                    handleAddressChange("billing", "address", e.target.value)
-                                }
                             />
                             <Form.Text className="text-danger">
                                 {billingAddressErrors.address}
@@ -341,9 +184,7 @@ const CheckoutPage = () => {
                                         id="billingCountry"
                                         size="lg"
                                         value={billingAddress.country}
-                                        onChange={(e) =>
-                                            handleAddressChange("billing", "country", e.target.value)
-                                        }
+                                        disabled
                                     >
                                         <option value="">Select Country</option>
                                         <option value="USA">USA</option>
@@ -363,9 +204,7 @@ const CheckoutPage = () => {
                                         id="billingState"
                                         size="lg"
                                         value={billingAddress.state}
-                                        onChange={(e) =>
-                                            handleAddressChange("billing", "state", e.target.value)
-                                        }
+                                        disabled
                                     >
                                         <option value="">Select State</option>
                                         <option value="California">California</option>
@@ -383,15 +222,6 @@ const CheckoutPage = () => {
                         <h2 className="mb-3">Shipping Address</h2>
 
                         <hr className="mb-4" />
-                        <Form.Group>
-                            <Form.Check
-                                type="checkbox"
-                                id="same-address"
-                                label="Shipping address is the same as my billing address"
-                                onChange={handleSameAddressChange}
-                            />
-                        </Form.Group>
-
                         <Row>
                             <Col md={6}>
                                 <Form.Group>
@@ -402,9 +232,7 @@ const CheckoutPage = () => {
                                         type="text"
                                         size="lg"
                                         value={shippingAddress.firstName}
-                                        onChange={(e) =>
-                                            handleAddressChange("shipping", "firstName", e.target.value)
-                                        }
+                                        disabled
                                     />
                                     <Form.Text className="text-danger">
                                         {shippingAddressErrors.firstName}
@@ -420,9 +248,7 @@ const CheckoutPage = () => {
                                         type="text"
                                         size="lg"
                                         value={shippingAddress.lastName}
-                                        onChange={(e) =>
-                                            handleAddressChange("shipping", "lastName", e.target.value)
-                                        }
+                                        disabled
                                     />
                                     <Form.Text className="text-danger">
                                         {shippingAddressErrors.lastName}
@@ -439,9 +265,7 @@ const CheckoutPage = () => {
                                 type="text"
                                 size="lg"
                                 value={shippingAddress.address}
-                                onChange={(e) =>
-                                    handleAddressChange("shipping", "address", e.target.value)
-                                }
+                                disabled
                             />
                             <Form.Text className="text-danger">
                                 {shippingAddressErrors.address}
@@ -457,10 +281,8 @@ const CheckoutPage = () => {
                                         as="select"
                                         id="shippingCountry"
                                         size="lg"
+                                        disabled
                                         value={shippingAddress.country}
-                                        onChange={(e) =>
-                                            handleAddressChange("shipping", "country", e.target.value)
-                                        }
                                     >
                                         <option value="">Select Country</option>
                                         <option value="USA">USA</option>
@@ -478,11 +300,9 @@ const CheckoutPage = () => {
                                         required
                                         as="select"
                                         id="shippingState"
+                                        disabled
                                         size="lg"
                                         value={shippingAddress.state}
-                                        onChange={(e) =>
-                                            handleAddressChange("shipping", "state", e.target.value)
-                                        }
                                     >
                                         <option value="">Select State</option>
                                         <option value="California">California</option>
@@ -506,9 +326,9 @@ const CheckoutPage = () => {
                                 required
                                 id="cardNumber"
                                 type="text"
-                                value={card.cardNumber}
+                                disabled
                                 size="lg"
-                                onChange={handleCardChange}
+                                value={card.cardNumber}
                             />
                             <Form.Text className="text-danger">{cardErrors.cardNumber}</Form.Text>
                         </Form.Group>
@@ -521,9 +341,9 @@ const CheckoutPage = () => {
                                         required
                                         id="expirationDate"
                                         type="text"
-                                        onChange={handleCardChange}
-                                        value={card.expirationDate}
                                         size="lg"
+                                        disabled
+                                        value={card.expirationDate}
                                     />
                                     <Form.Text className="text-danger">
                                         {cardErrors.expirationDate}
@@ -537,8 +357,8 @@ const CheckoutPage = () => {
                                         required
                                         id="securityCode"
                                         type="text"
-                                        onChange={handleCardChange}
                                         value={card.securityCode}
+                                        disabled
                                     />
                                     <Form.Text className="text-danger">
                                         {cardErrors.securityCode}
@@ -548,9 +368,19 @@ const CheckoutPage = () => {
                         </Row>
 
                         <hr className="mb-4" />
-                        <Button className="btn btn-primary btn-lg my-3" variant="primary" type="submit" block>
-                            Continue to checkout
+                        <Button
+                            className="btn btn-success btn-lg my-3 mr-3" // Change the ml-5 to mr-3 or another value that works for your design
+                            variant="success"
+                            type="submit"
+                            block
+                            style={{ marginRight: '10px' }}
+                        >
+                            Continue To Pay
                         </Button>
+                        <Button className="btn btn-primary btn-lg my-3" variant="primary" type="button" block onClick={handleBack}>
+                            Back
+                        </Button>
+
                     </Form>
                 </div>
             </div>
@@ -558,4 +388,4 @@ const CheckoutPage = () => {
     );
 };
 
-export default CheckoutPage;
+export default ReviewPage;

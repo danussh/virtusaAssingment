@@ -16,7 +16,7 @@ const ProductCard = ({ id, title, price, image, category }) => {
       </div>
       <div className="d-flex flex-column justify-content-between" style={{ borderTop: '1px solid #ccc', padding: '2rem' }}>
         <div className="info d-flex flex-column justify-content-between" style={{ gap: '1rem', height: '100%' }}>
-          <div className="font-weight-bold">{title}</div>
+          <div className="font-weight-bold">{title.length <= 15 ? title : title.substr(0, 35) + '...'}</div>
           <div>${price.toFixed(2)}</div>
         </div>
         <Button

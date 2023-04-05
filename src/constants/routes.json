@@ -1,5 +1,6 @@
 {
   "HOME": "/shopping-cart",
   "PRODUCTS": "/shopping-cart/products",
-  "CHECKOUT":"/shopping-cart/checkout"
+  "CHECKOUT":"/shopping-cart/checkout",
+  "REVIEW":"/shopping-cart/review"
 }

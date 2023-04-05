@@ -49,12 +49,11 @@ const ButtonWrapper = styled.button`
 
   /* SHAPE */
 
-  ${({ shape }) =>
-    shape === 'round' &&
-    css`
-      padding: 2rem;
-      border-radius: 50px;
-    `}
+  ${({ shape }) => css`
+  padding: 2rem;
+  border-radius: ${shape === 'round' ? '50px' : shape === 'curve' ? '15px' : '0'};
+`}
+
 
   /* COLOR */
 

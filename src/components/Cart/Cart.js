@@ -27,7 +27,7 @@ const Cart = () => {
 
   const navigateHome = () => {
     // 👇️ navigate to /
-    if(cartItems.length > 0){
+    if (cartItems.length > 0) {
       dispatch(closeCart())
       history.push(routes.CHECKOUT);
     }
@@ -53,6 +53,7 @@ const Cart = () => {
           size="wide"
           color="primary"
           animation="color"
+          shape={'curve'}
           onClick={navigateHome}
         />
         <Button
@@ -61,6 +62,7 @@ const Cart = () => {
           size="wide"
           color="red"
           animation="color"
+          shape={'curve'}
         />
       </CartWrapper>
       <Overlay onClick={() => dispatch(closeCart())} isOpen={isCartOpen} />
@@ -79,7 +81,7 @@ const CartWrapper = styled.div`
   gap: 4rem;
   width: 59rem;
   height: 100%;
-  padding: 6rem;
+  padding: 4rem;
   background-color: #fff;
   font-size: 3rem;
   transition: right 0.85s ease-in-out;
@@ -104,7 +106,7 @@ const Title = styled.div`
 const Products = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1rem;
   width: 100%;
   overflow: auto;
 `
