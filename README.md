@@ -1,5 +1,7 @@
 # virtusaAssingment 
 
+Deployed in Netlify : https://ecomercevirtusa.netlify.app/shopping-cart
+
 # AddtoCart With CheckOutForm
 
 # Technology Stack : 
