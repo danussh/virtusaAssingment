@@ -19,12 +19,12 @@ const CardItemCard = ({ id, title, price, image, quantity, donNotShow }) => {
   };
 
   return (
-    <div className="d-flex">
+    <li class="list-group-item d-flex justify-content-between lh-sm">
       <div className="d-flex align-items-center mb-2 ml-2" style={{ width: '20%', height: '13rem' }}>
         <img src={image} style={{ height: '100%', width: 'auto' }} alt={title} />
       </div>
       <div className="d-flex flex-column align-items-center justify-content-between w-100" style={{ fontSize: '2rem' }}>
-        <div style={{ fontWeight: 'bold', height: '3rem', overflow: 'hidden' }}>{formatTitle(title)}</div>
+        <div  data-bs-toggle="tooltip" data-bs-placement="top" title={title} style={{ fontWeight: 'bold', height: '3rem', overflow: 'hidden' }}>{formatTitle(title)}</div>
         <div>${sumPrice()}</div>
         {
           donNotShow ? <div>Quantity : {cartItem.quantity}</div> : <div className="d-flex align-items-center" style={{ gap: '3rem' }}>
@@ -44,7 +44,7 @@ const CardItemCard = ({ id, title, price, image, quantity, donNotShow }) => {
           </div>
         }
       </div>
-    </div>
+    </li>
   );
 };
 
